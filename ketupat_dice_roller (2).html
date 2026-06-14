@@ -1,0 +1,110 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Oswald:wght@400;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Oswald',sans-serif;background:#2a2a2a;min-height:100vh;}
+.bg{min-height:100vh;background:#1a1a1a;background-image:repeating-linear-gradient(45deg,transparent,transparent 40px,rgba(255,255,255,0.015) 40px,rgba(255,255,255,0.015) 80px);position:relative;overflow:hidden;padding:0 0 40px;}
+.bg::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect x='10' y='10' width='40' height='40' rx='8' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='2'/%3E%3Ccircle cx='30' cy='30' r='4' fill='rgba(255,255,255,0.04)'/%3E%3Crect x='70' y='70' width='40' height='40' rx='8' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='2'/%3E%3Ccircle cx='90' cy='90' r='4' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E");pointer-events:none;}
+.header{text-align:center;padding:18px 0 8px;}
+.header h1{font-family:'Boogaloo',cursive;font-size:54px;color:#f5c842;text-shadow:3px 3px 0 #8B6914,5px 5px 0 #5a4008,0 0 30px rgba(245,200,66,0.4);letter-spacing:2px;line-height:1;}
+.header p{color:#aaa;font-size:13px;letter-spacing:4px;margin-top:4px;text-transform:uppercase;}
+.center-panel{background:#1e1e1e;border:2px solid #3a3a3a;border-radius:14px;width:360px;margin:18px auto 0;padding:18px 18px 0;}
+.panel-title{text-align:center;color:#f5c842;font-family:'Boogaloo',cursive;font-size:24px;letter-spacing:2px;margin-bottom:14px;text-shadow:1px 1px 0 #8B6914;}
+.dropdowns{display:flex;gap:8px;margin-bottom:18px;}
+.dropdowns select{flex:1;background:#2d2d2d;color:#fff;border:1px solid #555;border-radius:6px;padding:7px 10px;font-size:13px;font-family:'Oswald',sans-serif;appearance:none;text-align:center;cursor:pointer;}
+.dropdowns select:focus{outline:none;border-color:#f5c842;}
+.dice-area{display:flex;gap:12px;justify-content:center;min-height:100px;align-items:center;padding:10px 0 14px;flex-wrap:wrap;}
+.die{width:76px;height:76px;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.2);}
+.die .dot{width:16px;height:16px;background:rgba(255,255,255,0.85);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,0.5);}
+@keyframes rollAnim{0%{transform:rotateX(0deg) rotateY(0deg) scale(1);}20%{transform:rotateX(180deg) rotateY(90deg) scale(0.85);}40%{transform:rotateX(360deg) rotateY(180deg) scale(1.05);}60%{transform:rotateX(540deg) rotateY(270deg) scale(0.9);}80%{transform:rotateX(720deg) rotateY(360deg) scale(1.02);}100%{transform:rotateX(720deg) rotateY(360deg) scale(1);}}
+.die.rolling{animation:rollAnim 0.7s ease-out;}
+.game-id{text-align:center;font-size:11px;color:#999;padding:6px 0 10px;border-top:1px solid #333;}
+.game-id span{color:#ccc;}
+.game-id a{color:#4a9eff;font-size:11px;text-decoration:none;}
+.roll-btn{display:block;width:100%;background:linear-gradient(to bottom,#f5d020,#f5a623);color:#1a1a1a;font-family:'Boogaloo',cursive;font-size:22px;font-weight:700;letter-spacing:3px;border:none;padding:13px;cursor:pointer;border-radius:0 0 12px 12px;text-shadow:none;transition:all 0.1s;box-shadow:0 4px 0 #a06a00;}
+.roll-btn:hover{background:linear-gradient(to bottom,#ffe040,#f5b733);}
+.roll-btn:active{transform:translateY(3px);box-shadow:0 1px 0 #a06a00;}
+</style>
+
+<div class="bg">
+  <div class="header">
+    <h1>KETUPAT DICE</h1>
+    <p>Virtual Dice Simulator</p>
+  </div>
+
+  <div class="center-panel">
+    <div class="panel-title">ROLL COLOR DICE</div>
+    <div class="dropdowns">
+      <select id="diceCount">
+        <option value="1">1 DICE</option>
+        <option value="2">2 DICE</option>
+        <option value="3">3 DICE</option>
+        <option value="4" selected>4 DICE</option>
+        <option value="5">5 DICE</option>
+        <option value="6">6 DICE</option>
+        <option value="8">8 DICE</option>
+        <option value="10">10 DICE</option>
+      </select>
+      <select id="diceType">
+        <option>COLOR DICE</option>
+      </select>
+      <select id="gameMode">
+        <option>B&W</option>
+        <option>COLOR</option>
+      </select>
+    </div>
+
+    <div class="dice-area" id="diceArea"></div>
+
+    <div class="game-id">
+      🎮 Game ID: <span id="gameId">loading...</span> &nbsp;<a href="#">Verify</a> 🔵
+    </div>
+
+    <button class="roll-btn" id="rollBtn">ROLL AGAIN !</button>
+  </div>
+</div>
+
+<script>
+const COLORS = [
+  {name:'Red',    hex:'#d32f2f', dark:'#a00000'},
+  {name:'Purple', hex:'#7b1fa2', dark:'#4a0072'},
+  {name:'Green',  hex:'#388e3c', dark:'#1b5e20'},
+  {name:'Blue',   hex:'#1565c0', dark:'#003c8f'},
+  {name:'Orange', hex:'#e65100', dark:'#ac1900'},
+  {name:'Yellow', hex:'#f9a825', dark:'#c17900'},
+];
+
+function genId(){return Math.random().toString(36).slice(2,12);}
+
+function rollAll(){
+  const count = parseInt(document.getElementById('diceCount').value);
+  const area = document.getElementById('diceArea');
+  const dice = area.querySelectorAll('.die');
+
+  // If count changed, rebuild
+  if(dice.length !== count){
+    area.innerHTML = '';
+    for(let i=0;i<count;i++){
+      const d = document.createElement('div');
+      d.className = 'die';
+      area.appendChild(d);
+    }
+  }
+
+  document.getElementById('gameId').textContent = genId();
+
+  area.querySelectorAll('.die').forEach(d => {
+    const c = COLORS[Math.floor(Math.random()*COLORS.length)];
+    d.style.background = `linear-gradient(145deg, ${c.hex}, ${c.dark})`;
+    d.innerHTML = '<div class="dot"></div>';
+    d.classList.remove('rolling');
+    void d.offsetWidth;
+    d.classList.add('rolling');
+    d.addEventListener('animationend', ()=>d.classList.remove('rolling'), {once:true});
+  });
+}
+
+document.getElementById('rollBtn').addEventListener('click', rollAll);
+document.getElementById('diceCount').addEventListener('change', rollAll);
+rollAll();
+</script>
